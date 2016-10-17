@@ -1,3 +1,4 @@
+//Paul Hipster
 node {
 <%_ if (applicationType !== 'microservice') { _%>
     // uncomment these 2 lines and edit the name 'node-4.6.0' according to what you choose in configuration
@@ -20,6 +21,12 @@ node {
     }
 
 <%_ } _%>
+
+    stage('checkout') {
+       // Checkout code from repository
+       checkout scm
+    }
+
 <%_ if (buildTool === 'maven') { _%>
     stage('clean') {
         sh "./mvnw clean"
@@ -30,12 +37,14 @@ node {
     }
 
 <%_ } else if (buildTool === 'gradle') { _%>
+    def gradleHome = tool 'Gradle'
+
     stage('clean') {
-        sh "./gradlew clean"
+        sh "${gradleHome}/bin/gradle clean"
     }
 
     stage('backend tests') {
-        sh "./gradlew test"
+        sh "${gradleHome}/bin/gradle test"
     }
 
 <%_ } _%>
@@ -49,7 +58,7 @@ node {
 <%_ if (buildTool === 'maven') { _%>
         sh "./mvnw package -Pprod -DskipTests"
 <%_ } else if (buildTool === 'gradle' ) { _%>
-        sh "./gradlew bootRepackage -Pprod -x test"
+        sh "${gradleHome}/bin/gradle bootRepackage -Pprod -x test"
 <%_ } _%>
     }
 }
