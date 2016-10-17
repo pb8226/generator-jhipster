@@ -244,6 +244,7 @@ module.exports = JhipsterGenerator.extend({
     default: {
 
         askForTestOpts: prompts.askForTestOpts,
+        askForTerraformFiles: prompts.askForTerraformFiles,
 
         setSharedConfigOptions: function () {
             this.configOptions.lastQuestion = this.currentQuestion;

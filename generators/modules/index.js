@@ -47,6 +47,7 @@ module.exports = ModulesGenerator.extend({
         jhipsterVar.databaseType = this.config.get('databaseType');
         jhipsterVar.devDatabaseType = this.config.get('devDatabaseType');
         jhipsterVar.prodDatabaseType = this.config.get('prodDatabaseType');
+        jhipsterVar.terraform = this.config.get('terraform');
         jhipsterVar.searchEngine = this.config.get('searchEngine');
         jhipsterVar.useSass = this.config.get('useSass');
         jhipsterVar.buildTool = this.config.get('buildTool');

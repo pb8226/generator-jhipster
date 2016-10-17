@@ -411,6 +411,24 @@ function askForServerSideOpts() {
                 }
             ],
             default: 'maven'
+        },
+        {
+            type: 'list',
+            name: 'terraform',
+            message: function (response) {
+                return getNumberedQuestion('Would you like to generate Terraform files?', true);
+            },
+            choices: [
+                {
+                    value: 'yes',
+                    name: 'Yes'
+                },
+                {
+                    value: 'no',
+                    name: 'No'
+                }
+            ],
+            default: 'no'
         }
     ];
 
@@ -446,6 +464,7 @@ function askForServerSideOpts() {
         this.searchEngine = props.searchEngine;
         this.serviceDiscoveryType = props.serviceDiscoveryType;
         this.buildTool = props.buildTool;
+        this.terraform = props.terraform;
         this.uaaBaseName = getUaaAppName.call(this, props.uaaBaseName).baseName;
 
         if (this.databaseType === 'no') {

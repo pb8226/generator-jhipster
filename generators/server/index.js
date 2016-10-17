@@ -19,6 +19,7 @@ const constants = require('../generator-constants'),
     QUESTIONS = constants.SERVER_QUESTIONS,
     INTERPOLATE_REGEX = constants.INTERPOLATE_REGEX,
     DOCKER_DIR = constants.DOCKER_DIR,
+    TERRAFORM_DIR = constants.TERRAFORM_DIR,
     MAIN_DIR = constants.MAIN_DIR,
     TEST_DIR = constants.TEST_DIR,
     CLIENT_DIST_DIR = constants.CLIENT_DIST_DIR,
@@ -184,6 +185,7 @@ module.exports = JhipsterServerGenerator.extend({
                 this.hibernateCache = this.config.get('hibernateCache');
             }
             this.buildTool = this.config.get('buildTool');
+            this.terraform = this.config.get('terraform');
             this.enableSocialSignIn = this.config.get('enableSocialSignIn');
             this.jhipsterVersion = this.config.get('jhipsterVersion');
             if (this.jhipsterVersion === undefined) {
@@ -222,6 +224,7 @@ module.exports = JhipsterServerGenerator.extend({
                 this.devDatabaseType !== undefined &&
                 this.prodDatabaseType !== undefined &&
                 this.searchEngine !== undefined &&
+                this.terraform !== undefined &&
                 this.buildTool !== undefined;
 
             if (this.baseName !== undefined && serverConfigFound) {
@@ -285,6 +288,7 @@ module.exports = JhipsterServerGenerator.extend({
             this.configOptions.messageBroker = this.messageBroker;
             this.configOptions.serviceDiscoveryType = this.serviceDiscoveryType;
             this.configOptions.buildTool = this.buildTool;
+            this.configOptions.terraform = this.terraform;
             this.configOptions.enableSocialSignIn = this.enableSocialSignIn;
             this.configOptions.authenticationType = this.authenticationType;
             this.configOptions.uaaBaseName = this.uaaBaseName;
@@ -317,6 +321,7 @@ module.exports = JhipsterServerGenerator.extend({
             insight.track('app/messageBroker', this.messageBroker);
             insight.track('app/serviceDiscoveryType', this.serviceDiscoveryType);
             insight.track('app/buildTool', this.buildTool);
+            insight.track('app/terraform', this.terraform);
             insight.track('app/enableSocialSignIn', this.enableSocialSignIn);
         },
 
@@ -369,6 +374,7 @@ module.exports = JhipsterServerGenerator.extend({
             this.config.set('messageBroker', this.messageBroker);
             this.config.set('serviceDiscoveryType', this.serviceDiscoveryType);
             this.config.set('buildTool', this.buildTool);
+            this.config.set('terraform', this.terraform);
             this.config.set('enableSocialSignIn', this.enableSocialSignIn);
             this.config.set('jwtSecretKey', this.jwtSecretKey);
             this.config.set('rememberMeKey', this.rememberMeKey);
@@ -418,7 +424,36 @@ module.exports = JhipsterServerGenerator.extend({
             this.template('_travis.yml', '.travis.yml', this, {});
             this.template('_Jenkinsfile', 'Jenkinsfile', this, {});
         },
+        writeTerraformFiles: function () {
+            switch (this.terraform) {
+            case 'yes':
+                // Create Terraform module files
+                this.template(TERRAFORM_DIR + 'modules/backend-app/_main.tf', TERRAFORM_DIR + 'modules/backend-app/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'modules/backend-app/_vars.tf', TERRAFORM_DIR + 'modules/backend-app/vars.tf', this, {});
+                this.template(TERRAFORM_DIR + 'modules/backend-app/_outputs.tf', TERRAFORM_DIR + 'modules/backend-app/outputs.tf', this, {});
 
+                this.template(TERRAFORM_DIR + 'modules/frontend-app/_main.tf', TERRAFORM_DIR + 'modules/frontend-app/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'modules/frontend-app/_vars.tf', TERRAFORM_DIR + 'modules/frontend-app/vars.tf', this, {});
+                this.template(TERRAFORM_DIR + 'modules/frontend-app/_outputs.tf', TERRAFORM_DIR + 'modules/frontend-app/outputs.tf', this, {});
+
+                this.template(TERRAFORM_DIR + 'modules/postgres/_main.tf', TERRAFORM_DIR + 'modules/postgres/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'modules/postgres/_vars.tf', TERRAFORM_DIR + 'modules/postgres/vars.tf', this, {});
+                this.template(TERRAFORM_DIR + 'modules/postgres/_outputs.tf', TERRAFORM_DIR + 'modules/postgres/outputs.tf', this, {});
+
+                // Create Terraform prod files
+                this.template(TERRAFORM_DIR + 'prod/services/backend-app/_main.tf', TERRAFORM_DIR + 'prod/services/backend-app/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'prod/services/frontend-app/_main.tf', TERRAFORM_DIR + 'prod/services/frontend-app/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'prod/data-storage/postgresql/_main.tf', TERRAFORM_DIR + 'prod/data-storage/postgresql/main.tf', this, {});
+
+                // Create Terraform stage files
+                this.template(TERRAFORM_DIR + 'stage/services/backend-app/_main.tf', TERRAFORM_DIR + 'stage/services/backend-app/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'stage/services/frontend-app/_main.tf', TERRAFORM_DIR + 'stage/services/frontend-app/main.tf', this, {});
+                this.template(TERRAFORM_DIR + 'stage/data-storage/postgresql/_main.tf', TERRAFORM_DIR + 'stage/data-storage/postgresql/main.tf', this, {});
+                    break;
+            case 'no':
+            default :
+            }
+        },
         writeDockerFiles: function () {
             // Create Docker and Docker Compose files
             this.template(DOCKER_DIR + '_Dockerfile', DOCKER_DIR + 'Dockerfile', this, {});
